@@ -1,48 +1,84 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 
-jest.mock('next/dynamic', () => () => {
-  const DynamicComponent = () => null
-  DynamicComponent.displayName = 'LoadableComponent'
-  DynamicComponent.preload = jest.fn()
-  return DynamicComponent
-})
-
 import { SearchResultItem } from './index'
 
-describe('SearchResultItem component', () => {
-  const props = {
-    item: {
-      id: 0,
-      title: 'Title result',
-      price: 80,
-      priceFormatted: 'R$ 80,00',
-    },
-    addToWishList: jest.fn(),
-  }
+const FAKE_PROPS = {
+  item: {
+    id: 0,
+    title: 'Title result',
+    price: 80,
+    priceFormatted: 'R$ 80,00',
+  },
+  addToWishList: jest.fn(),
+}
 
+describe('SearchResultItem component', () => {
   it('should render correctly', () => {
     render(
-      <SearchResultItem addToWishList={props.addToWishList} item={props.item} />
+      <SearchResultItem
+        addToWishList={FAKE_PROPS.addToWishList}
+        item={FAKE_PROPS.item}
+      />
     )
 
-    const title = screen.getByText('Title result')
-    const priceFormatted = screen.getByText('R$ 80,00')
+    const FAKE_TITLE = screen.getByText('Title result')
+    const FAKE_PRICE_FORMMATER = screen.getByText('R$ 80,00')
+    const BUTTON_WISH_LIST = screen.getByText('Add to wish list')
 
-    expect(title).toBeInTheDocument()
-    expect(priceFormatted).toBeInTheDocument()
+    expect(FAKE_TITLE).toBeInTheDocument()
+    expect(FAKE_PRICE_FORMMATER).toBeInTheDocument()
+    expect(BUTTON_WISH_LIST).toBeInTheDocument()
   })
 
-  it('should show modalConfirm when click to add to wish list', () => {
-    const { debug } = render(
-      <SearchResultItem addToWishList={props.addToWishList} item={props.item} />
+  it('should not show modal on first moment', () => {
+    render(
+      <SearchResultItem
+        addToWishList={FAKE_PROPS.addToWishList}
+        item={FAKE_PROPS.item}
+      />
     )
 
-    const button = screen.getByText('Add to wish list')
+    const MODAL_TEXT = 'Deseja adicionar esse item aos favoritos?'
 
-    fireEvent.click(button)
+    expect(screen.queryByText(MODAL_TEXT)).not.toBeInTheDocument()
+  })
 
-    // update state
+  it('should open modal when click to add to wish list', () => {
+    render(
+      <SearchResultItem
+        addToWishList={FAKE_PROPS.addToWishList}
+        item={FAKE_PROPS.item}
+      />
+    )
 
-    debug()
+    const MODAL_TEXT = 'Deseja adicionar esse item aos favoritos?'
+    const BUTTON_WISH_LIST = screen.getByText('Add to wish list')
+
+    expect(screen.queryByText(MODAL_TEXT)).not.toBeInTheDocument()
+
+    fireEvent.click(BUTTON_WISH_LIST)
+
+    expect(screen.queryByText(MODAL_TEXT)).toBeInTheDocument()
+  })
+
+  it('should close modal when click to close modal', () => {
+    render(
+      <SearchResultItem
+        addToWishList={FAKE_PROPS.addToWishList}
+        item={FAKE_PROPS.item}
+      />
+    )
+
+    fireEvent.click(screen.getByText('Add to wish list'))
+
+    const MODAL_TEXT = 'Deseja adicionar esse item aos favoritos?'
+
+    expect(screen.queryByText(MODAL_TEXT)).toBeInTheDocument()
+
+    const BUTTON_CLOSE = screen.getByText('Nāo')
+
+    fireEvent.click(BUTTON_CLOSE)
+
+    expect(screen.queryByText(MODAL_TEXT)).not.toBeInTheDocument()
   })
 })

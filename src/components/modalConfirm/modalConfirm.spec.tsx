@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 
-import ModalConfirm from './index'
+import ModalConfirm from '.'
 
 describe('ModalConfirm component', () => {
   const props = {
@@ -16,14 +16,14 @@ describe('ModalConfirm component', () => {
       />
     )
 
-    expect(
-      screen.getByText('Deseja adicionar esse item aos favoritos?')
-    ).toBeInTheDocument()
+    const MODAL_TEXT = 'Deseja adicionar esse item aos favoritos?'
+
+    expect(screen.getByText(MODAL_TEXT)).toBeInTheDocument()
     expect(screen.getByText('Sim')).toBeInTheDocument()
     expect(screen.getByText('Nāo')).toBeInTheDocument()
   })
 
-  it('should call function addToWishList', () => {
+  it('should call function addToWishList when click YES', () => {
     props.onClose.mockClear()
     props.addToWishList.mockClear()
 
@@ -34,14 +34,14 @@ describe('ModalConfirm component', () => {
       />
     )
 
-    const buttonConfirm = screen.getByText('Sim')
+    const BUTTON_CONFIRM = screen.getByText('Sim')
 
-    fireEvent.click(buttonConfirm)
+    fireEvent.click(BUTTON_CONFIRM)
 
     expect(props.addToWishList).toHaveBeenCalled()
   })
 
-  it('should call function onClose', () => {
+  it('should call function onClose when click NO', () => {
     props.onClose.mockClear()
     props.addToWishList.mockClear()
 
@@ -51,9 +51,11 @@ describe('ModalConfirm component', () => {
         onClose={props.onClose}
       />
     )
-    const buttonClose = screen.getByText('Nāo')
 
-    fireEvent.click(buttonClose)
+    const BUTTON_CLOSE = screen.getByText('Nāo')
+
+    fireEvent.click(BUTTON_CLOSE)
+
     expect(props.onClose).toHaveBeenCalled()
   })
 })

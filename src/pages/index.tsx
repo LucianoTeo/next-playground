@@ -1,64 +1,70 @@
-import { FormEvent, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import SearchResult from '../components/SearchResult'
+import FormComponent from '../components/Form'
+
+import { fetchItemsByName } from '../http/api/fetch/items'
+import { addItemToWishList } from '../http/api/post/items'
+
+import handleError from '../http/errors'
+
+import { ItemResponse } from '../types/item'
 
 export default function Home() {
-  const [search, setSearch] = useState('')
-  const [results, setResults] = useState({
-    totalPrice: '0',
+  const [loading, setLoading] = useState(false)
+
+  const [results, setResults] = useState<ItemResponse>({
     data: [],
+    totalPrice: '0',
   })
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  const [wishList, setWishList] = useState([])
 
+  async function handleSubmit(search: string): Promise<ItemResponse> {
     if (!search.trim()) {
       return
     }
+    setLoading(true)
+
     try {
-      const response = await fetch(`http://localhost:3333/products?q=${search}`)
-      const data = await response.json()
-
-      const formatter = new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      })
-
-      const items = data.map((item) => {
-        return {
-          id: item.id,
-          title: item.title,
-          price: item.price,
-          priceFormatted: formatter.format(item.price),
-        }
-      })
-
-      const totalPrice = data.reduce((total, result) => {
-        return total + result.price
-      }, 0)
-
-      setResults({ totalPrice, data: items })
+      const response = await fetchItemsByName({ name: search })
+      setResults(response)
+      setLoading(false)
     } catch (error) {
-      console.log(error)
+      setLoading(false)
+      handleError(error)
     }
   }
 
-  const addToWishList = useCallback(async (id: number) => {
-    console.log(id)
-  }, [])
+  const handleWishList = useCallback(
+    async (id: number) => {
+      setLoading(true)
+
+      try {
+        const response = await addItemToWishList(id)
+        setWishList([...wishList, response])
+        setLoading(false)
+      } catch (error) {
+        handleError(error)
+        setLoading(false)
+      }
+    },
+    [wishList]
+  )
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} />
-        <button type="submit">buscar</button>
-      </form>
+    <main>
+      <FormComponent handleSubmit={handleSubmit} />
 
       <SearchResult
+        isLoading={loading}
         results={results.data}
         totalPrice={results.totalPrice}
-        addToWishList={addToWishList}
+        addToWishList={handleWishList}
       />
-    </>
+
+      <h2>Wish List</h2>
+      {wishList.map((item) => item.id)}
+    </main>
   )
 }

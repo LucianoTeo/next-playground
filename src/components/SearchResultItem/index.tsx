@@ -1,19 +1,8 @@
 import { memo, useState } from 'react'
-import dynamic from 'next/dynamic'
 
-const ModalConfirm = dynamic(() => import('../modalConfirm'), {
-  loading: () => <p>Carregando ...</p>,
-})
+import ModalConfirm from '../ModalConfirm'
 
-interface SearchResultItemProps {
-  item: {
-    id: number
-    title: string
-    price: number
-    priceFormatted: string
-  }
-  addToWishList: (id: number) => Promise<void>
-}
+import { SearchResultItemProps } from '../../types/item'
 
 function SearchResultItemComponent({
   item,
@@ -24,10 +13,13 @@ function SearchResultItemComponent({
   return (
     <div>
       <strong>{item.title}</strong>
+
       <span>{item.priceFormatted}</span>
+
       <button type="button" onClick={() => setIsOpen(true)}>
         Add to wish list
       </button>
+
       {isOpen && (
         <ModalConfirm
           onClose={() => setIsOpen(false)}
