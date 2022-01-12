@@ -1,0 +1,32 @@
+<!-- jest -->
+
+yarn add jest jest-dom @testing-library/jest-dom @testing-library/dom @testing-library/react babel-jest -D
+
+<!-- jest.config.js  -->
+
+module.exports = {
+testPathIgnorePattern: ['/node_modules', '/.next'],
+setupFilesAfterEnv: ['<rootDir>/src/tests/setupTests.ts'],
+testEnviroment: 'jsdom',
+transform: {
+'^.+\\.(js|jsx|ts|tsx)$': '<rootDir>/node_modules/babel-jest',
+},
+}
+
+<!-- setupTests.ts -->
+
+import '@testing-library/jest-dom/extend-expect'
+
+<!-- babel.config.js -->
+
+module.exports = {
+presets: ['next/babel'],
+}
+
+<!-- yarn add identity-obj-proxy -D -->
+
+CSS models no jest
+
+<!-- yarn add ts-jest -D -->
+
+more funcionalities jest + typescript

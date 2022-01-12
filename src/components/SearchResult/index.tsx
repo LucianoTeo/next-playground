@@ -1,3 +1,5 @@
+import { List, ListRowRenderer, AutoSizer } from 'react-virtualized'
+
 import { SearchResultItem } from '../SearchResultItem'
 
 interface SearchResultProps {
@@ -16,16 +18,29 @@ function SearchResult({
   results,
   addToWishList,
 }: SearchResultProps) {
+  const rowRenderer: ListRowRenderer = ({ index, key, style }) => {
+    return (
+      <div key={key} style={style}>
+        <SearchResultItem item={results[index]} addToWishList={addToWishList} />
+      </div>
+    )
+  }
+
   return (
-    <div>
+    <div style={{ minHeight: '100vh' }}>
       <h3>{totalPrice}</h3>
-      {results.map((result) => (
-        <SearchResultItem
-          key={result.id}
-          product={result}
-          addToWishList={addToWishList}
-        />
-      ))}
+
+      <AutoSizer>
+        {({ height, width }) => (
+          <List
+            height={height}
+            rowCount={results.length}
+            rowHeight={50}
+            rowRenderer={rowRenderer}
+            width={width}
+          />
+        )}
+      </AutoSizer>
     </div>
   )
 }
